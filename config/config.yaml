@@ -1,0 +1,17 @@
+oss:
+  access_key_id: ${ALIBABA_CLOUD_ACCESS_KEY_ID}
+  access_key_secret: ${ALIBABA_CLOUD_ACCESS_KEY_SECRET}
+  endpoint: ${OSS_ENDPOINT}
+  bucket_name: ${OSS_BUCKET_NAME}
+  region: ${OSS_REGION}  # 用于v4签名
+
+bilibili:
+  default_quality: 80
+  chunk_size: 20971520  # 20MB
+  cookie: 1  # B站登录Cookie，可以设置环境变量或直接填写
+
+tingwu:
+  app_key: ${TINGWU_APP_KEY}  # 从环境变量加载通义听悟项目AppKey
+  access_key_id: ${ALIBABA_CLOUD_ACCESS_KEY_ID}  # 使用统一的阿里云访问密钥ID
+  access_key_secret: ${ALIBABA_CLOUD_ACCESS_KEY_SECRET}  # 使用统一的阿里云访问密钥Secret
+  region_id: ${TINGWU_REGION_ID}  # 从环境变量加载服务区域

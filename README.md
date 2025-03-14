@@ -22,7 +22,6 @@ B站视频摘要工具是一个集视频下载、转写、摘要生成于一体�
 - 🔖 **自动章节**：智能生成视频章节划分
 - 👥 **角色分离**：支持多人对话的角色分离
 - 📄 **多种输出**：支持JSON、纯文本、段落格式的输出
-- 🔒 **安全配置**：环境变量和配置文件分离，保护敏感信息
 
 <div align="center">
   <img src="images/多线程.png" alt="并发处理架构" width="1000"/>
@@ -85,25 +84,8 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-然后编辑`.env`文件，填入以下信息：
+然后编辑`.env`文件，填入信息：
 
-```
-# B站Cookie
-BILIBILI_COOKIE=你的B站cookie
-
-# 阿里云访问密钥
-ALIBABA_CLOUD_ACCESS_KEY_ID=你的阿里云AccessKey ID
-ALIBABA_CLOUD_ACCESS_KEY_SECRET=你的阿里云AccessKey Secret
-
-# 阿里云OSS配置
-OSS_ENDPOINT=oss-cn-beijing.aliyuncs.com
-OSS_BUCKET_NAME=你的Bucket名称
-OSS_REGION=cn-beijing
-
-# 通义听悟配置
-TINGWU_APP_KEY=你的通义听悟AppKey
-TINGWU_REGION_ID=cn-beijing
-```
 
 2. **配置文件说明**
 
@@ -187,15 +169,6 @@ vedio_summ/
 └── README.md                # 项目说明文档
 ```
 
-## 技术原理
-
-系统采用生产者-消费者模式，通过队列和线程池实现并行处理：
-
-1. **下载阶段(生产者)**：从B站API获取视频信息和下载链接，将视频下载到本地
-2. **上传阶段(中间消费者+生产者)**：将本地视频上传至OSS并生成临时URL
-3. **AI处理阶段(消费者)**：将URL提交给通义听悟API进行处理，并监控处理进度
-
-这种架构允许系统在网络I/O等待期间并行处理多个任务，大大提高了批量处理效率。通过任务管理器实时监控各任务状态，提供直观的进度显示。
 
 ## 注意事项
 
@@ -214,19 +187,14 @@ vedio_summ/
 3. **平台集成**：与现有系统无缝对接
 4. **培训与支持**：提供技术培训和长期技术支持
 
-## 贡献指南
-
-欢迎提交问题报告和功能建议。如果您想贡献代码，请先Fork本仓库，然后提交Pull Request。
-
 ## 许可证
 
 本项目采用MIT许可证。详见LICENSE文件。
 
 ## 联系方式
 
-- Email: yourname@example.com
-- GitHub: github.com/yourusername/vedio_summ
-- 微信: your_wechat_id
+- QQ: 2561175851
+
 
 ## 致谢
 

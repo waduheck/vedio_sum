@@ -1,8 +1,17 @@
+
 # B站视频摘要工具
+
+<div align="center">
+  <img src="images/数据流.png" alt="项目数据流" width="10000"/>
+</div>
 
 ## 项目简介
 
 B站视频摘要工具是一个集视频下载、转写、摘要生成于一体的Python应用程序。通过输入B站视频的BV号，该工具可以自动下载视频，上传到阿里云OSS，利用通义听悟API进行语音识别、文本转写、摘要生成等一系列处理，最终生成详细的视频摘要、字幕文件和智能章节划分。
+
+<div align="center">
+  <img src="images/模块.png" alt="项目模块架构" width="800"/>
+</div>
 
 ## 功能特点
 
@@ -14,6 +23,25 @@ B站视频摘要工具是一个集视频下载、转写、摘要生成于一体�
 - 👥 **角色分离**：支持多人对话的角色分离
 - 📄 **多种输出**：支持JSON、纯文本、段落格式的输出
 - 🔒 **安全配置**：环境变量和配置文件分离，保护敏感信息
+
+<div align="center">
+  <img src="images/多线程.png" alt="并发处理架构" width="1000"/>
+  <p><i>系统采用生产者-消费者模型实现高效并发处理</i></p>
+</div>
+
+## 输出展示
+
+<div align="center">
+  <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+    <img src="images/识别文字.png" alt="识别文字" width="45%"/>
+    <img src="images/视频总结.png" alt="视频总结" width="45%"/>
+  </div>
+  <div style="display: flex; justify-content: space-between;">
+    <img src="images/srt字幕.png" alt="SRT字幕" width="45%"/>
+    <img src="images/示例输出.png" alt="示例输出" width="45%"/>
+  </div>
+  <p><i>输出示例：转写文本、视频摘要、SRT字幕和结果概览</i></p>
+</div>
 
 ## 安装
 
@@ -140,16 +168,6 @@ python video_summary_demo.py --bvid-file bvid_list.txt --max-concurrent 3
   --no-status-display     禁用状态显示
 ```
 
-## 输出文件
-
-成功处理后，会在输出目录下生成以下文件：
-
-- `{bvid}_{title}.json` - 完整的转写结果（包含时间戳和角色信息）
-- `{bvid}_{title}.txt` - 纯文本转写结果
-- `{bvid}_{title}_paragraph.txt` - 分段落的转写结果
-- `{bvid}_{title}_summary.txt` - 视频摘要
-- `{bvid}_{title}_chapters.txt` - 自动生成的章节划分（如果启用）
-
 ## 项目结构
 
 ```
@@ -161,12 +179,23 @@ vedio_summ/
 │       ├── core/            # 核心功能模块
 │       ├── services/        # 服务模块
 │       └── exceptions/      # 异常处理
+├── images/                  # 项目图片展示
 ├── .env.example             # 环境变量示例文件
 ├── .gitignore               # Git忽略文件
 ├── requirements.txt         # 项目依赖
 ├── video_summary_demo.py    # 主入口脚本
 └── README.md                # 项目说明文档
 ```
+
+## 技术原理
+
+系统采用生产者-消费者模式，通过队列和线程池实现并行处理：
+
+1. **下载阶段(生产者)**：从B站API获取视频信息和下载链接，将视频下载到本地
+2. **上传阶段(中间消费者+生产者)**：将本地视频上传至OSS并生成临时URL
+3. **AI处理阶段(消费者)**：将URL提交给通义听悟API进行处理，并监控处理进度
+
+这种架构允许系统在网络I/O等待期间并行处理多个任务，大大提高了批量处理效率。通过任务管理器实时监控各任务状态，提供直观的进度显示。
 
 ## 注意事项
 
@@ -176,16 +205,14 @@ vedio_summ/
 4. **OSS费用**：使用阿里云OSS存储和通义听悟API可能产生费用，请关注账单
 5. **B站限制**：频繁下载视频可能触发B站的限制，建议适度使用
 
-## 常见问题
+## 定制开发服务
 
-**Q: 如何获取B站Cookie?**  
-A: 登录B站网页版后，通过浏览器开发者工具获取Cookie。
+基于这个开源项目，我们提供以下定制开发服务：
 
-**Q: 转写结果不准确怎么办?**  
-A: 可以尝试调整参数，如`--speaker-count`或`--enable-polish`以提高准确度。
-
-**Q: 如何处理超长视频?**  
-A: 长视频处理时间较长，建议增加`--interval`参数值并确保网络稳定。
+1. **企业级部署**：为企业内部搭建私有化视频处理系统
+2. **功能定制**：根据特定需求开发专属功能
+3. **平台集成**：与现有系统无缝对接
+4. **培训与支持**：提供技术培训和长期技术支持
 
 ## 贡献指南
 
@@ -194,6 +221,12 @@ A: 长视频处理时间较长，建议增加`--interval`参数值并确保网�
 ## 许可证
 
 本项目采用MIT许可证。详见LICENSE文件。
+
+## 联系方式
+
+- Email: yourname@example.com
+- GitHub: github.com/yourusername/vedio_summ
+- 微信: your_wechat_id
 
 ## 致谢
 

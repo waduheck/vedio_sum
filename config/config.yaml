@@ -8,7 +8,7 @@ oss:
 bilibili:
   default_quality: 80
   chunk_size: 20971520  # 20MB
-  cookie: 1  # B站登录Cookie，可以设置环境变量或直接填写
+  cookie: ${BILIBILI_COOKIE}  # B站登录Cookie，可以设置环境变量或直接填写
 
 tingwu:
   app_key: ${TINGWU_APP_KEY}  # 从环境变量加载通义听悟项目AppKey

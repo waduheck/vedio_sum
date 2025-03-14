@@ -1,185 +1,222 @@
-# 哔哩哔哩视频下载器
+<think>
+我需要为这个项目编写一个全面的README文件。从已经看到的代码和文件，我了解到这是一个B站视频下载和摘要生成工具，使用了阿里云OSS存储服务和通义听悟API。
 
-这是一个用于下载B站视频并上传到阿里云OSS存储的工具。
+README应该包含以下内容：
+1. 项目标题和简短描述
+2. 功能特点
+3. 安装说明
+4. 配置说明
+5. 使用方法和示例
+6. 代码结构
+7. 贡献指南
+8. 许可证信息
+
+让我根据看到的代码和文件结构来编写README。
+</think>
+
+# B站视频摘要工具
+
+## 项目简介
+
+B站视频摘要工具是一个集视频下载、转写、摘要生成于一体的Python应用程序。通过输入B站视频的BV号，该工具可以自动下载视频，上传到阿里云OSS，利用通义听悟API进行语音识别、文本转写、摘要生成等一系列处理，最终生成详细的视频摘要、字幕文件和智能章节划分。
 
 ## 功能特点
 
-- 从B站下载指定BV号的视频
-- 可选择不同的视频质量
-- 上传视频到阿里云OSS存储
-- 生成视频的临时访问链接
-- 使用通义听悟API进行视频内容转写和摘要生成
-- 支持多种转写格式：纯文本、段落分组、SRT和VTT字幕
-- 模块化设计，支持代码复用
+- 🚀 **批量处理**：支持单个视频或批量处理多个B站视频
+- 🔄 **流水线处理**：采用流水线模式提高批量处理效率
+- 📊 **实时状态**：提供实时处理状态显示和进度跟踪
+- 📝 **智能摘要**：利用通义听悟AI生成视频摘要和关键点
+- 🔖 **自动章节**：智能生成视频章节划分
+- 👥 **角色分离**：支持多人对话的角色分离
+- 📄 **多种输出**：支持JSON、纯文本、段落格式的输出
+- 🔒 **安全配置**：环境变量和配置文件分离，保护敏感信息
 
 ## 安装
 
+### 前提条件
+
+- Python 3.8+
+- 阿里云OSS账号和AccessKey
+- 通义听悟账号和AppKey
+- B站Cookie（用于下载高清视频）
+
+### 安装步骤
+
+1. **克隆仓库**
+
 ```bash
-# 克隆仓库
-git clone <仓库URL>
+git clone https://github.com/yourusername/vedio_summ.git
 cd vedio_summ
+```
 
-# 创建虚拟环境
+2. **创建并激活虚拟环境**
+
+```bash
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+```
 
-# 安装依赖
+3. **安装依赖**
+
+```bash
 pip install -r requirements.txt
 ```
 
+## 配置
+
+1. **创建环境变量文件**
+
+复制`.env.example`文件为`.env`并填写相关信息：
+
+```bash
+cp .env.example .env
+```
+
+然后编辑`.env`文件，填入以下信息：
+
+```
+# B站Cookie
+BILIBILI_COOKIE=你的B站cookie
+
+# 阿里云访问密钥
+ALIBABA_CLOUD_ACCESS_KEY_ID=你的阿里云AccessKey ID
+ALIBABA_CLOUD_ACCESS_KEY_SECRET=你的阿里云AccessKey Secret
+
+# 阿里云OSS配置
+OSS_ENDPOINT=oss-cn-beijing.aliyuncs.com
+OSS_BUCKET_NAME=你的Bucket名称
+OSS_REGION=cn-beijing
+
+# 通义听悟配置
+TINGWU_APP_KEY=你的通义听悟AppKey
+TINGWU_REGION_ID=cn-beijing
+```
+
+2. **配置文件说明**
+
+`config/config.yaml`文件定义了默认配置，一般无需修改。如需自定义，可以修改此文件或在命令行中指定参数。
+
 ## 使用方法
 
-### 配置
+### 基本用法
 
-1. 在 `config/config.yaml` 中设置阿里云OSS配置，或使用环境变量
-2. 对于B站登录状态，可以通过以下方式提供Cookie以下载高清视频：
-   - 在配置文件中设置: `bilibili.cookie: 你的Cookie值`
-   - 使用环境变量: `export BILIBILI_COOKIE=你的Cookie值`
-   - 在命令行指定: `--cookie "你的Cookie值"`
-3. 通义听悟API配置：
-   - 在配置文件中设置: `tingwu.app_key: 你的AppKey`
-   - 使用环境变量设置访问密钥: `TINGWU_ACCESS_KEY_ID` 和 `TINGWU_ACCESS_KEY_SECRET`
-
-配置文件示例：
-```yaml
-oss:
-  access_key_id: ${OSS_ACCESS_KEY_ID}
-  access_key_secret: ${OSS_ACCESS_KEY_SECRET}
-  endpoint: oss-cn-beijing.aliyuncs.com
-  bucket_name: auto-scrip
-  region: cn-beijing  # OSS区域，用于v4签名
-
-bilibili:
-  default_quality: 80
-  chunk_size: 1048576  # 1MB
-  cookie: ${BILIBILI_COOKIE}  # 可以使用环境变量或直接填写完整的Cookie
-
-tingwu:
-  app_key: YOUR_TINGWU_APP_KEY  # 通义听悟项目AppKey
-  access_key_id: ${TINGWU_ACCESS_KEY_ID}  # 通义听悟访问密钥
-  access_key_secret: ${TINGWU_ACCESS_KEY_SECRET}  # 通义听悟访问密钥Secret
-  region_id: cn-beijing  # 服务区域
-```
-
-### 示例
-
-```python
-from src.bilibili_downloader.core import BiliVideoDownloader
-from src.bilibili_downloader.services import OSSService, OSSConfig
-
-# 初始化下载器
-downloader = BiliVideoDownloader(cookie="your_cookie")
-
-# 获取视频信息
-video_info = downloader.get_video_info("BV1G4AHe1E1P")
-print(f"视频标题: {video_info.title}")
-
-# 设置OSS配置
-oss_config = OSSConfig(
-    access_key_id="YOUR_ACCESS_KEY_ID",
-    access_key_secret="YOUR_ACCESS_KEY_SECRET", 
-    endpoint="oss-cn-beijing.aliyuncs.com",
-    bucket_name="your-bucket-name"
-)
-
-# 初始化OSS服务
-oss_service = OSSService(oss_config)
-
-# 下载并上传视频
-# ...
-```
-
-## 使用示例
-
-### 下载B站视频并上传到OSS
+处理单个B站视频：
 
 ```bash
-python examples/download_video.py BV1G4AHe1E1P
+python video_summary_demo.py --bvid BV1Gj411w7PZ
 ```
 
-### 从OSS获取文件URL
+处理多个视频（从文件读取）：
 
 ```bash
-# 获取OSS对象的临时访问URL
-python examples/get_oss_url.py videos/example.mp4
-
-# 指定URL有效期（秒）
-python examples/get_oss_url.py videos/example.mp4 --expire 7200
+python video_summary_demo.py --bvid-file bvid_list.txt
 ```
 
-### 使用OSS对象名将视频提交给通义听悟API进行处理
+### 高级选项
 
 ```bash
-# 直接处理OSS上的文件
-python examples/oss_to_tingwu.py --oss-bucket your-bucket --oss-key videos/example.mp4
+# 自定义输出目录
+python video_summary_demo.py --bvid BV1Gj411w7PZ --output-dir my_outputs
 
-# 处理本地文件
-python examples/oss_to_tingwu.py --local-file path/to/video.mp4
+# 保留下载的视频文件
+python video_summary_demo.py --bvid BV1Gj411w7PZ --keep
 
-# 跟踪已有任务
-python examples/oss_to_tingwu.py --track-task-id your-task-id --interval 5
+# 设置视频质量（1-120，数值越大质量越高）
+python video_summary_demo.py --bvid BV1Gj411w7PZ --quality 80
 
-# 指定输出格式
-python examples/oss_to_tingwu.py --local-file video.mp4 --format srt
+# 多任务并行处理
+python video_summary_demo.py --bvid-file bvid_list.txt --max-concurrent 3
 ```
 
-#### 支持的输出格式
+### 完整参数说明
 
-- `json`: 原始转写JSON结果
-- `txt`: 提取的纯文本，移除时间戳和标签
-- `paragraph`: 按段落和说话人分组的文本
-- `srt`: SRT字幕格式，适用于大多数视频播放器
-- `vtt`: WebVTT字幕格式，适用于网页播放器
-- `all`: 生成所有格式（默认）
+```
+必选参数（二选一）:
+  --bvid BVID             单个视频BV号
+  --bvid-file BVID_FILE   包含BV号列表的文件路径，每行一个BV号
 
-### 一键下载视频并生成摘要
-
-```bash
-python examples/video_summary.py BV1G4AHe1E1P
+可选参数:
+  -c, --config CONFIG     配置文件路径
+  -o, --output OUTPUT     输出文件路径模板，默认video_{bvid}.mp4
+  -q, --quality QUALITY   视频质量，默认80
+  --cookie COOKIE         B站Cookie
+  --keep                  保留本地文件
+  --language-type TYPE    语言类型，默认auto
+  --interval INTERVAL     查询间隔(秒)，默认5.0
+  --output-dir DIR        输出目录，默认output
+  --enable-diarization    启用角色分离，默认开启
+  --speaker-count COUNT   说话人数量，默认2
+  --enable-chapters       启用章节速览，默认开启
+  --enable-meeting        启用智能纪要，默认开启
+  --enable-ppt            启用PPT提取，默认关闭
+  --enable-polish         启用口语书面化，默认开启
+  --max-concurrent N      最大并发上传任务数，默认1
+  --pipeline              启用流水线处理模式，默认开启
+  --no-status-display     禁用状态显示
 ```
 
-## 开发
+## 输出文件
 
-### 项目结构
+成功处理后，会在输出目录下生成以下文件：
+
+- `{bvid}_{title}.json` - 完整的转写结果（包含时间戳和角色信息）
+- `{bvid}_{title}.txt` - 纯文本转写结果
+- `{bvid}_{title}_paragraph.txt` - 分段落的转写结果
+- `{bvid}_{title}_summary.txt` - 视频摘要
+- `{bvid}_{title}_chapters.txt` - 自动生成的章节划分（如果启用）
+
+## 项目结构
 
 ```
 vedio_summ/
-├── config/             # 配置文件
-├── src/                # 源代码
-│   └── bilibili_downloader/
-│       ├── core.py     # 下载核心功能
-│       ├── services.py # OSS服务
-│       ├── tingwu.py   # 通义听悟服务
-│       └── exceptions.py # 异常定义
-├── examples/           # 示例脚本
-├── tests/              # 测试代码
-└── requirements.txt    # 依赖管理
+├── config/                  # 配置文件目录
+│   └── config.yaml          # 主配置文件
+├── src/                     # 源代码
+│   └── bilibili_downloader/ # B站下载器模块
+│       ├── core/            # 核心功能模块
+│       ├── services/        # 服务模块
+│       └── exceptions/      # 异常处理
+├── .env.example             # 环境变量示例文件
+├── .gitignore               # Git忽略文件
+├── requirements.txt         # 项目依赖
+├── video_summary_demo.py    # 主入口脚本
+└── README.md                # 项目说明文档
 ```
 
-### 运行测试
+## 注意事项
 
-```bash
-pytest tests/
-``` 
+1. **密钥安全**：请勿将包含真实密钥的`.env`文件提交到版本控制系统
+2. **网络要求**：确保网络稳定，视频下载和API调用需要良好的网络环境
+3. **存储空间**：处理大视频需要足够的磁盘空间
+4. **OSS费用**：使用阿里云OSS存储和通义听悟API可能产生费用，请关注账单
+5. **B站限制**：频繁下载视频可能触发B站的限制，建议适度使用
 
-## 功能说明
+## 常见问题
 
-### 转写格式支持
+**Q: 如何获取B站Cookie?**  
+A: 登录B站网页版后，通过浏览器开发者工具获取Cookie。
 
-- **纯文本提取**: 从转写结果中提取纯文本内容，去除时间戳、说话人标签等
-- **段落格式化**: 按段落和说话人分组，保持原始文本结构
-- **SRT字幕**: 生成包含时间戳和说话人信息的SRT格式字幕文件
-- **VTT字幕**: 生成WebVTT格式字幕文件，适用于HTML5视频
+**Q: 转写结果不准确怎么办?**  
+A: 可以尝试调整参数，如`--speaker-count`或`--enable-polish`以提高准确度。
 
-### OSS集成
+**Q: 如何处理超长视频?**  
+A: 长视频处理时间较长，建议增加`--interval`参数值并确保网络稳定。
 
-- 支持OSS V2和V4签名，自动根据配置选择适当的签名方式
-- 提供临时访问URL生成功能
-- 支持文件上传和管理
+## 贡献指南
 
-### 通义听悟API集成
+欢迎提交问题报告和功能建议。如果您想贡献代码，请先Fork本仓库，然后提交Pull Request。
 
-- 支持视频语音转写
-- 支持摘要生成
-- 提供任务状态跟踪
-- 支持多种结果格式处理 
+## 许可证
+
+本项目采用MIT许可证。详见LICENSE文件。
+
+## 致谢
+
+- 感谢阿里云OSS提供存储服务
+- 感谢通义听悟提供AI转写和摘要能力
+- 感谢B站提供丰富的视频内容
+
+---
+
+*注: 请合法使用此工具，遵守B站用户协议和相关法律法规。不得用于侵权或商业用途。*
